@@ -12,14 +12,28 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   useReactTable,
+  getPaginationRowModel,
+  SortingState,
+  getSortedRowModel,
 } from "@tanstack/react-table";
 import { usaSpecialOffers } from "../lib/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { VirtuDialAPI } from "../lib/utils";
+import usaFlag from "../assets/american-flag.png";
+import { Img } from "react-image";
+import { TablePagination } from "../components/table-pagination";
+import { appConfigs } from "../lib/data";
 
 const columns: ColumnDef<usaSpecialOffers>[] = [
   {
     accessorKey: "flag",
     header: "Flag",
+    cell: () => {
+      return (
+        <Img src={usaFlag} alt="usa-flag" className="w-9 h-9 rounded-full" />
+      );
+    },
   },
   {
     accessorKey: "countryName",
@@ -30,7 +44,7 @@ const columns: ColumnDef<usaSpecialOffers>[] = [
     header: "State",
   },
   {
-    accessorKey: "totalNumbers",
+    accessorKey: "availableNumbers",
     header: "Available Numbers",
   },
   {
@@ -39,36 +53,50 @@ const columns: ColumnDef<usaSpecialOffers>[] = [
   },
 ];
 
-const data: usaSpecialOffers[] = [
-  {
-    areaCode: "402",
-    countryName: "USA",
-    flag: "",
-    id: "id",
-    state: "Arizona",
-    totalNumbers: 40,
-    updatedAt: "",
-  },
-];
-
 const UsaSpecialOffers = () => {
+  const api = new VirtuDialAPI();
+  const [data, setData] = useState<usaSpecialOffers[]>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = useState<SortingState>([]);
   const table = useReactTable({
     data,
     columns,
-    // onSortingChange: setSorting,
+    onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    // getPaginationRowModel: getPaginationRowModel(),
-    // getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    // onColumnVisibilityChange: setColumnVisibility,
     state: {
-      //   sorting,
+      sorting,
       columnFilters,
-      //   columnVisibility,
     },
   });
+
+  const { data: _data, isSuccess } = useQuery({
+    queryKey: ["usa-states-and-available-numbers"],
+    queryFn: () => api.getUsaStatesAndAvailableNumbers(),
+  });
+
+  useEffect(() => {
+    if (!isSuccess) return;
+
+    if (!_data) return;
+
+    setData(
+      // @ts-ignore
+      _data.data.map((state) => ({
+        areaCode: state.areaCode,
+        availableNumbers: state.availableNumbers,
+        countryName: "USA",
+        flag: usaFlag,
+        state: state.state,
+        updatedAt: state.updatedAt || "Time",
+        id: state._id,
+      }))
+    );
+    //
+  }, [isSuccess]);
 
   return (
     <MaxScreenSize className="pt-16">
@@ -84,7 +112,7 @@ const UsaSpecialOffers = () => {
       <div className="flex w-full items-center justify-between mt-3">
         <h1 className="text-xl bona-nova-sc-bold">Numbers</h1>
         <CreateNumberBtn>
-          <Button className="gap-2" size="sm" variant="secondary">
+          <Button className="gap-2" size="sm" variant="primary">
             <PlusIcon />
             Create Number
           </Button>
@@ -103,14 +131,25 @@ const UsaSpecialOffers = () => {
               className="h-[2rem] w-1/2"
               placeholder="Search state"
             />
-            <Button size="sm" className="h-8 gap-2" variant="outline">
+            <Button
+              onClick={() => table.getColumn("state")?.toggleSorting()}
+              size="sm"
+              className="h-8 gap-2"
+              variant={
+                table.getColumn("state")?.getIsSorted()
+                  ? "secondary"
+                  : "outline"
+              }
+            >
               <ListFilterIcon size={14} />
               Sort
             </Button>
           </header>
           <hr />
           <CardContent className="p-2">
+            {/* @ts-ignore */}
             <DataTable table={table} />
+            <TablePagination table={table} />
           </CardContent>
         </CardContent>
       </Card>

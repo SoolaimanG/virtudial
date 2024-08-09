@@ -153,9 +153,17 @@ export interface usaSpecialOffers {
   flag: string;
   countryName: string;
   state: string;
-  totalNumbers: number;
+  availableNumbers: number;
   areaCode: string;
   updatedAt: string;
+}
+
+export interface usaStateNumbers {
+  availableNumbers: number;
+  updatedAt: null | number;
+  _id: string;
+  state: string;
+  areaCode: string;
 }
 
 export interface ITable<TData extends RowData>

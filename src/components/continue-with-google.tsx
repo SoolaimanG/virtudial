@@ -3,7 +3,12 @@ import { Button } from "./ui/button";
 import { GoogleIcon } from "./googleIcon";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { toast } from "./ui/use-toast";
-import { app, errorMessageAndStatus, VirtuDialAPI } from "../lib/utils";
+import {
+  app,
+  errorMessageAndStatus,
+  getCallbackUrl,
+  VirtuDialAPI,
+} from "../lib/utils";
 import { useNavigate } from "react-router-dom";
 import { appConfigs, completeProfileSchema } from "../lib/data";
 import {
@@ -243,6 +248,9 @@ export const ContinueWithGoogle: FC<{
       return setProps({ open: true, user: user.data });
     if (!user.data.isAccountVerified)
       return navigate(appConfigs.paths.auth.requestAccountVerification);
+
+    const callbackUrl = getCallbackUrl();
+    navigate(callbackUrl.callbackUrl || "/");
   };
 
   return (

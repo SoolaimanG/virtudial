@@ -8,9 +8,11 @@ import {
   TableHeader,
   TableRow,
 } from "../components/ui/table";
-import { ITable } from "../lib/types";
-
-export function DataTable({ table }: { table: ITable<unknown> }) {
+import { ITable, usaSpecialOffers } from "../lib/types";
+import { Link } from "react-router-dom";
+import { appConfigs } from "../lib/data";
+//
+export function DataTable({ table }: { table: ITable<usaSpecialOffers> }) {
   return (
     <div className="rounded-md border">
       <Table>
@@ -38,10 +40,22 @@ export function DataTable({ table }: { table: ITable<unknown> }) {
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
+                className="cursor-pointer"
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    <Link
+                      className="w-full"
+                      to={
+                        appConfigs.paths.explore["usa-special-offers"] +
+                        row.original.id.trim().replace(" ", "-").toLowerCase()
+                      }
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </Link>
                   </TableCell>
                 ))}
               </TableRow>

@@ -10,6 +10,8 @@ import ExplorePage from "./pages/ExplorePage";
 import { Provider } from "./components/provider";
 import { ProtectedPage } from "./pages/auth/protected-page";
 import UsaSpecialOffers from "./pages/UsaSpecialOffers";
+import UsaStates from "./pages/usaStates";
+//
 
 function App() {
   const queryClient = new QueryClient();
@@ -56,11 +58,19 @@ function App() {
               <Route
                 path={appConfigs.paths["explore"]["usa-special-offers"]}
                 element={
-                  <ProtectedPage>
-                    <Provider>
-                      <UsaSpecialOffers />
-                    </Provider>
-                  </ProtectedPage>
+                  <Provider>
+                    <UsaSpecialOffers />
+                  </Provider>
+                }
+              />
+              <Route
+                path={
+                  appConfigs.paths["explore"]["usa-special-offers"] + ":state"
+                }
+                element={
+                  <Provider>
+                    <UsaStates />
+                  </Provider>
                 }
               />
             </Routes>

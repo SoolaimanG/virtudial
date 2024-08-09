@@ -7,6 +7,7 @@ import {
   apiResponseStatus,
   ICountry,
   IUser,
+  usaStateNumbers,
   verificationMeans,
 } from "./types";
 import { z } from "zod";
@@ -15,6 +16,7 @@ import Cookie from "js-cookie";
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
+import queryString from "query-string";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -94,6 +96,35 @@ export const getEuropeCountries = async () => {
     `https://restcountries.com/v3.1/region/europe?fields=flags,name`
   );
   return res.data;
+};
+
+export const verifySessionIsStillActive = async (
+  userId: string,
+  exp: number,
+  userEmail: string
+) => {
+  const currentTime = Date.now() / 1000; // Convert to seconds
+  const twoHoursInSeconds = 60 * 60 * 2; // Two hours in seconds
+  const timeDiff = exp - currentTime;
+
+  if (!userId || !userEmail || !exp)
+    throw new Error("Invalid or expired token");
+
+  const shouldRefreshToken = timeDiff <= twoHoursInSeconds;
+  const isSessionStillActive = timeDiff > 0;
+
+  return {
+    shouldRefreshToken,
+    isSessionStillActive,
+    remainingTime: timeDiff,
+  };
+};
+
+export const getCallbackUrl = () => {
+  const callbackUrl = queryString.parse(location.search) as {
+    callbackUrl: string | null;
+  };
+  return callbackUrl;
 };
 
 export class VirtuDialAPI {
@@ -223,6 +254,13 @@ export class VirtuDialAPI {
     const res: { data: apiResponse<IUser> } = await api.get(
       appConfigs.paths.api.auth["is-user-authenticated"],
       { headers: { Authorization: this.getAccessToken } }
+    );
+    return res.data;
+  }
+
+  async getUsaStatesAndAvailableNumbers() {
+    const res: { data: apiResponse<usaStateNumbers[]> } = await api.get(
+      appConfigs.paths.api.numbers["get-usa-states"]
     );
     return res.data;
   }

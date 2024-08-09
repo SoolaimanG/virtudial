@@ -12,7 +12,11 @@ import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { appConfigs, localLoginSchema } from "../../lib/data";
-import { errorMessageAndStatus, VirtuDialAPI } from "../../lib/utils";
+import {
+  errorMessageAndStatus,
+  getCallbackUrl,
+  VirtuDialAPI,
+} from "../../lib/utils";
 import { z } from "zod";
 import { toast } from "../../components/ui/use-toast";
 import { providerStore } from "../../lib/store";
@@ -36,6 +40,9 @@ export const Login: FC<{ isPage?: boolean }> = ({ isPage = false }) => {
             `?email=${res.data.email}&phoneNumber=${res.data.phoneNumber}`
         );
       }
+
+      const callbackUrl = getCallbackUrl();
+      navigate(callbackUrl.callbackUrl || "/");
     } catch (error) {
       const _error = errorMessageAndStatus(error);
       setStatus(_error.status);

@@ -50,7 +50,7 @@ export const Provider: FC<{ children: ReactNode }> = ({ children }) => {
           </div>
         </MaxScreenSize>
       </FixedNavBar>
-      <main className="pt-16"> {children}</main>
+      <main className="pt-16 pb-14"> {children}</main>
       <AppNavigation />
     </div>
   );

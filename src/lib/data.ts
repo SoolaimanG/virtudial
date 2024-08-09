@@ -4031,6 +4031,7 @@ export const countries: countriesType[] = [
 export const appConfigs = {
   name: "VirtuDial",
   paths: {
+    domain: "http://localhost:5173",
     home: "/",
     auth: {
       signIn: "/sign-in/",
@@ -4054,6 +4055,9 @@ export const appConfigs = {
         "continue-with-google": "/auth/continue-with-google/",
         "complete-account-set-up": "/auth/complete-account-set-up",
         "is-user-authenticated": "/auth/is-user-authenticated",
+      },
+      numbers: {
+        "get-usa-states": "/numbers/get-usa-states/",
       },
       joinWaitList: "/join-wait-list/",
       messageSupport: "/message-support",
